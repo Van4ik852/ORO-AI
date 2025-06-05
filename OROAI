@@ -1,0 +1,704 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORO Protocol - Cinematic Explainer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050510;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .data-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.7);
+            filter: blur(2px);
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-300px) translateX(100px) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .scene-container {
+            height: 70vh;
+            position: relative;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+        
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scene.active {
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        .data-cube {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 20s infinite linear;
+        }
+        
+        @keyframes rotate {
+            0% {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+            100% {
+                transform: rotateX(360deg) rotateY(360deg);
+            }
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            background: rgba(10, 10, 30, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        
+        .face-front { transform: translateZ(75px); }
+        .face-back { transform: translateZ(-75px) rotateY(180deg); }
+        .face-right { transform: rotateY(90deg) translateZ(75px); }
+        .face-left { transform: rotateY(-90deg) translateZ(75px); }
+        .face-top { transform: rotateX(90deg) translateZ(75px); }
+        .face-bottom { transform: rotateX(-90deg) translateZ(75px); }
+        
+        .data-flow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transform: translateX(-100%);
+            animation: flow 3s infinite;
+        }
+        
+        @keyframes flow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .encryption-shield {
+            width: 200px;
+            height: 250px;
+            position: relative;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: linear-gradient(135deg, #1a1a3a, #0a0a20);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .shield-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+            animation: pulse 4s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            width: 0%;
+            transition: width 0.5s ease-out;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #FFD700;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.6);
+        }
+        
+        .timeline-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-dot.active {
+            background: #FFD700;
+            transform: scale(1.3);
+        }
+        
+        .timeline-line {
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            flex-grow: 1;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .partner-logo {
+            height: 40px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .partner-logo:hover {
+            opacity: 1;
+        }
+        
+        .zk-proof {
+            position: relative;
+            width: 300px;
+            height: 150px;
+            background: rgba(10, 10, 30, 0.5);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 15px;
+            overflow: hidden;
+        }
+        
+        .zk-line {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 8px;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .zk-line::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 30%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+            animation: scan 2s infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            width: 80%;
+            max-width: 800px;
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-bold mb-2">
+                <span class="gradient-text">ORO</span> Protocol
+            </h1>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                Transforming private human data into liquid intelligence without exposure
+            </p>
+        </div>
+        
+        <div class="scene-container border border-gray-800 rounded-xl bg-gradient-to-b from-gray-900 to-black shadow-2xl relative">
+            <!-- Floating data particles -->
+            <div id="particles"></div>
+            
+            <!-- Scene 1: Introduction -->
+            <div class="scene active" id="scene1">
+                <div class="max-w-2xl text-center">
+                    <h2 class="text-4xl font-bold mb-6">
+                        <span class="gradient-text">Unlock</span> the Hidden Intelligence
+                    </h2>
+                    <div class="data-cube mx-auto mb-8">
+                        <div class="cube-face face-front">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M2 17L12 22L22 17" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M2 12L12 17L22 12" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M2 7V17" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M22 7V17" stroke="#FFD700" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="cube-face face-back">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="8" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M12 4V12L16 16" stroke="#FFD700" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="cube-face face-right">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 22L15 2" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M4 17H20" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M4 12H20" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M4 7H20" stroke="#FFD700" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="cube-face face-left">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="4" y="4" width="16" height="16" rx="2" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M4 8H20" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M8 4V20" stroke="#FFD700" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="cube-face face-top">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8V16" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M8 12H16" stroke="#FFD700" stroke-width="1.5"/>
+                                <circle cx="12" cy="12" r="9" stroke="#FFD700" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="cube-face face-bottom">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6L10 3L21 6L14 9L3 6Z" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M3 6V18L14 21V9L3 6Z" stroke="#FFD700" stroke-width="1.5"/>
+                                <path d="M14 9V21L21 18V6L14 9Z" stroke="#FFD700" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-xl mb-6">
+                        "To unlock the hidden intelligence inside private data, securely and ethically."
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Scene 2: Privacy by Design -->
+            <div class="scene" id="scene2">
+                <div class="flex flex-col md:flex-row items-center justify-center gap-12 max-w-5xl">
+                    <div class="encryption-shield">
+                        <div class="shield-glow"></div>
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L3 7V12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12V7L12 2Z" stroke="#FFD700" stroke-width="1.5"/>
+                            <path d="M12 11C10.9 11 10 11.9 10 13C10 14.1 10.9 15 12 15C13.1 15 14 14.1 14 13C14 11.9 13.1 11 12 11Z" stroke="#FFD700" stroke-width="1.5"/>
+                            <path d="M12 11V8" stroke="#FFD700" stroke-width="1.5"/>
+                        </svg>
+                        <div class="data-flow"></div>
+                    </div>
+                    <div class="max-w-md">
+                        <h2 class="text-3xl font-bold mb-4">
+                            <span class="gradient-text">Privacy-by-Design</span> Architecture
+                        </h2>
+                        <p class="text-gray-300 mb-4">
+                            ORO's revolutionary architecture ensures your data remains private while extracting valuable intelligence. Our protocol never exposes sensitive information.
+                        </p>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                End-to-end encryption
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Zero-knowledge cryptography
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Decentralized storage solutions
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scene 3: Data Transformation -->
+            <div class="scene" id="scene3">
+                <div class="max-w-5xl w-full">
+                    <h2 class="text-3xl font-bold mb-6 text-center">
+                        <span class="gradient-text">Transforming</span> Private Data into Liquid Intelligence
+                    </h2>
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                        <div class="bg-gray-900 bg-opacity-50 p-6 rounded-xl border border-gray-800 flex-1">
+                            <h3 class="text-xl font-semibold mb-3">Private Data</h3>
+                            <div class="space-y-2">
+                                <div class="h-6 bg-gray-800 rounded w-full relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-30"></div>
+                                </div>
+                                <div class="h-6 bg-gray-800 rounded w-3/4 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-30"></div>
+                                </div>
+                                <div class="h-6 bg-gray-800 rounded w-1/2 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-30"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-center">
+                                <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v3m0 0l-3-3m3 3l3-3m-3-3V6m0 0l3 3m-3-3L9 9"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div class="zk-proof">
+                            <div class="zk-line"></div>
+                            <div class="zk-line"></div>
+                            <div class="zk-line"></div>
+                            <div class="zk-line"></div>
+                            <div class="zk-line"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-yellow-500 font-mono text-sm">
+                                    zkTLS Processing
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-900 bg-opacity-50 p-6 rounded-xl border border-gray-800 flex-1">
+                            <h3 class="text-xl font-semibold mb-3">Liquid Intelligence</h3>
+                            <div class="space-y-2">
+                                <div class="h-6 bg-gray-800 rounded w-full relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-yellow-500 to-amber-500 opacity-50"></div>
+                                </div>
+                                <div class="h-6 bg-gray-800 rounded w-3/4 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-yellow-500 to-amber-500 opacity-50"></div>
+                                </div>
+                                <div class="h-6 bg-gray-800 rounded w-1/2 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-yellow-500 to-amber-500 opacity-50"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-center">
+                                <svg class="w-12 h-12 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scene 4: Ecosystem -->
+            <div class="scene" id="scene4">
+                <div class="max-w-4xl text-center">
+                    <h2 class="text-3xl font-bold mb-6">
+                        <span class="gradient-text">Backed</span> by Industry Leaders
+                    </h2>
+                    <p class="text-xl text-gray-300 mb-8">
+                        ORO is supported by the most respected names in blockchain and privacy technology
+                    </p>
+                    
+                    <div class="logo-container">
+                        <!-- a16z crypto logo -->
+                        <div class="partner-logo">
+                            <svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 20H30M20 10V30" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M40 20H50M45 15V25" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M55 15H65V25H55V15Z" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M70 15L80 25M80 15L70 25" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M90 15V25H100" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M105 15V25H115" stroke="#FFD700" stroke-width="2"/>
+                                <text x="10" y="38" fill="#FFD700" font-size="8">a16z crypto</text>
+                            </svg>
+                        </div>
+                        
+                        <!-- Delphi Ventures logo -->
+                        <div class="partner-logo">
+                            <svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 15H20C25 15 25 25 20 25H10V15Z" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M30 15H40V20H30V25H40" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M45 15V25H55V15" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M60 15V25H65V20H70V25H75V15H60Z" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M80 15V25H90V15" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M95 15V25H105V15" stroke="#FFD700" stroke-width="2"/>
+                                <text x="10" y="38" fill="#FFD700" font-size="8">Delphi Ventures</text>
+                            </svg>
+                        </div>
+                        
+                        <!-- NEAR Foundation logo -->
+                        <div class="partner-logo">
+                            <svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 15V25H15V20H20V25H25V15H10Z" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M30 15H40V20H30V25H40" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M45 15H55L50 20L55 25H45V15Z" stroke="#FFD700" stroke-width="2"/>
+                                <path d="M60 15V25H70V20H65V15H60Z" stroke="#FFD700" stroke-width="2"/>
+                                <text x="10" y="38" fill="#FFD700" font-size="8">NEAR Foundation</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Video Controls -->
+        <div class="mt-8">
+            <div class="flex items-center justify-between mb-4">
+                <button id="playPauseBtn" class="control-btn px-4 py-2 rounded-full flex items-center">
+                    <svg id="playIcon" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <svg id="pauseIcon" class="w-5 h-5 mr-2 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span id="playPauseText">Play</span>
+                </button>
+                
+                <button id="infoBtn" class="control-btn px-4 py-2 rounded-full">
+                    <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Learn More
+                </button>
+            </div>
+            
+            <!-- Timeline -->
+            <div class="flex items-center gap-2">
+                <div class="timeline-dot active" data-scene="1"></div>
+                <div class="timeline-line"></div>
+                <div class="timeline-dot" data-scene="2"></div>
+                <div class="timeline-line"></div>
+                <div class="timeline-dot" data-scene="3"></div>
+                <div class="timeline-line"></div>
+                <div class="timeline-dot" data-scene="4"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Info Modal -->
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2 class="text-3xl font-bold mb-6">
+                <span class="gradient-text">ORO</span> Protocol
+            </h2>
+            <div class="space-y-4">
+                <p>
+                    ORO is a revolutionary decentralized protocol that transforms private human data into liquid intelligence without exposing sensitive information. Our mission is to unlock the hidden intelligence inside private data, securely and ethically.
+                </p>
+                <h3 class="text-xl font-semibold">Key Features</h3>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li><strong>Privacy-by-Design Architecture:</strong> Built from the ground up with privacy as the core principle</li>
+                    <li><strong>zkTLS Integration:</strong> Zero-knowledge Transport Layer Security ensures data remains encrypted during processing</li>
+                    <li><strong>Decentralized Storage:</strong> Your data never resides in a single location, minimizing vulnerability</li>
+                    <li><strong>AI Model Integration:</strong> Seamlessly connect encrypted insights to power AI models without compromising privacy</li>
+                </ul>
+                <h3 class="text-xl font-semibold">Our Backers</h3>
+                <p>
+                    ORO is proudly supported by a16z crypto, Delphi Ventures, and NEAR Foundation, leaders in blockchain innovation and privacy technology.
+                </p>
+                <div class="mt-6">
+                    <button class="control-btn px-6 py-3 rounded-full">Join the Waitlist</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate random particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('data-particle');
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `${Math.random() * 10}s`;
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Scene management
+        const scenes = document.querySelectorAll('.scene');
+        const timelineDots = document.querySelectorAll('.timeline-dot');
+        const progressBar = document.getElementById('progressBar');
+        let currentScene = 1;
+        let totalScenes = scenes.length;
+        let isPlaying = false;
+        let sceneInterval;
+        const sceneDuration = 5000; // 5 seconds per scene
+        
+        function updateScene(sceneNum) {
+            scenes.forEach(scene => scene.classList.remove('active'));
+            document.getElementById(`scene${sceneNum}`).classList.add('active');
+            
+            timelineDots.forEach(dot => dot.classList.remove('active'));
+            timelineDots[sceneNum - 1].classList.add('active');
+            
+            currentScene = sceneNum;
+            updateProgressBar();
+        }
+        
+        function nextScene() {
+            let nextSceneNum = currentScene + 1;
+            if (nextSceneNum > totalScenes) {
+                nextSceneNum = 1;
+            }
+            updateScene(nextSceneNum);
+        }
+        
+        function updateProgressBar() {
+            const progress = (currentScene - 1) / (totalScenes - 1) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        
+        // Play/Pause functionality
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const playPauseText = document.getElementById('playPauseText');
+        
+        function togglePlayPause() {
+            if (isPlaying) {
+                clearInterval(sceneInterval);
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                playPauseText.textContent = 'Play';
+            } else {
+                sceneInterval = setInterval(nextScene, sceneDuration);
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                playPauseText.textContent = 'Pause';
+            }
+            isPlaying = !isPlaying;
+        }
+        
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        
+        // Timeline navigation
+        timelineDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const sceneNum = parseInt(dot.getAttribute('data-scene'));
+                updateScene(sceneNum);
+                
+                if (isPlaying) {
+                    clearInterval(sceneInterval);
+                    sceneInterval = setInterval(nextScene, sceneDuration);
+                }
+            });
+        });
+        
+        // Modal functionality
+        const infoBtn = document.getElementById('infoBtn');
+        const infoModal = document.getElementById('infoModal');
+        const closeModal = document.querySelector('.close-modal');
+        
+        infoBtn.addEventListener('click', () => {
+            infoModal.classList.add('active');
+            if (isPlaying) {
+                togglePlayPause();
+            }
+        });
+        
+        closeModal.addEventListener('click', () => {
+            infoModal.classList.remove('active');
+        });
+        
+        // Close modal when clicking outside
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) {
+                infoModal.classList.remove('active');
+            }
+        });
+        
+        // Initialize
+        updateProgressBar();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94b02776c69003c9',t:'MTc0OTEzMTU4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
